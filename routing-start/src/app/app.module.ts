@@ -1,3 +1,5 @@
+import { AuthService } from './auth.service';
+import { AuthGuard } from './auth-guard.service';
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -29,7 +31,7 @@ import { AppRoutingModule } from './app-routing.module';
     FormsModule,
     AppRoutingModule
   ],
-  providers: [ServersService],
+  providers: [ServersService, AuthService, AuthGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
