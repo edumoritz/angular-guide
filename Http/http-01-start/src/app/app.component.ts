@@ -1,7 +1,7 @@
+import { PostsService } from './posts.service';
+import { Post } from './post.model';
 import { Component, OnInit } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
 
-const urlFirebase = 'https://ng-complete-guide-3f8c9-default-rtdb.firebaseio.com';
 
 @Component({
   selector: 'app-root',
@@ -9,25 +9,35 @@ const urlFirebase = 'https://ng-complete-guide-3f8c9-default-rtdb.firebaseio.com
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  loadedPosts = [];
+  loadedPosts: Post[] = [];
+  isFetching = false;
 
 
-  constructor(private http: HttpClient) {}
+  constructor(private postsService: PostsService) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.onFetchPosts();
+  }
 
-  onCreatePost(postData: { title: string; content: string }) {
+  onCreatePost(postData: Post) {
     // Send Http request
-    this.http.post(urlFirebase+'/posts.json', postData).subscribe(responseData => {
-      console.log(responseData)
-    });
+    this.postsService.createAndStorePost(postData.title, postData.content);
   }
 
   onFetchPosts() {
     // Send Http request
+    this.isFetching = true;
+    this.postsService.fetchPosts().subscribe(posts => {
+      this.isFetching = false;
+      this.loadedPosts = posts;
+    })
   }
 
   onClearPosts() {
     // Send Http request
+    this.postsService.deletePosts().subscribe(() => {
+      this.loadedPosts = [];
+    })
   }
+
 }
