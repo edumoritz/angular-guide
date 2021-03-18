@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { HttpClientModule } from '@angular/common/http';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
@@ -35,6 +36,7 @@ import { RecipeEditComponent } from './recipes/recipe-edit/recipe-edit.component
     RecipeEditComponent,
   ],
   imports: [
+    HttpClientModule,
     BrowserModule,
     AppRoutingModule,
     FormsModule,
