@@ -1,6 +1,8 @@
-import { RecipeService } from './../recipes/recipe.service';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { map, tap } from 'rxjs/operators';
+import { Recipe } from './../recipes/recipe.model';
+import { RecipeService } from './../recipes/recipe.service';
 
 const firebase = 'https://course-recipe-book-2e1d7-default-rtdb.firebaseio.com/';
 
@@ -17,5 +19,18 @@ export class DataStorageService {
       .subscribe(response => {
         console.log(response);
       });
+  }
+
+  fetchRecipes() {
+    return this.http.get<Recipe[]>(firebase+'recipes.json')
+    .pipe(map(recipes => {
+      return recipes.map(recipe => {
+        return {...recipe, ingredients: recipe.ingredients ? recipe.ingredients : []};
+      });
+    }),
+    tap(recipes => {
+      this.recipeService.setRecipes(recipes);
+    })
+    )
   }
 }
