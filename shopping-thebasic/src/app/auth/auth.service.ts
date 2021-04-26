@@ -4,10 +4,10 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { throwError, BehaviorSubject } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
-const endpointHash = 'AIzaSyB_1yEjRbImYj2Zs6Xs4k3FK_zQu_xfY64';
-const endpointSignUp = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${endpointHash}`;
-const endpointSignIn = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${endpointHash}`;
+const endpointSignUp = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${environment.firebaseAPIKey}`;
+const endpointSignIn = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.firebaseAPIKey}`;
 
 export interface AuthResponseData {
   kind: string;
