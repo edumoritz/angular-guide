@@ -1,12 +1,13 @@
+import { Router } from '@angular/router';
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { switchMap, catchError, map } from 'rxjs/operators';
+import { switchMap, catchError, map, tap } from 'rxjs/operators';
 import { Actions, Effect, ofType } from '@ngrx/effects';
-import { of } from 'rxjs';
 
 import { environment } from './../../../environments/environment';
 
 import * as AuthActions from './auth.actions';
+import { of } from 'rxjs';
 
 const endpointSignUp = `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${environment.firebaseAPIKey}`;
 const endpointSignIn = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${environment.firebaseAPIKey}`;
@@ -24,6 +25,7 @@ export interface AuthResponseData {
 
 @Injectable()
 export class AuthEffects {
+
   @Effect()
   authLogin = this.actions$.pipe(
     ofType(AuthActions.LOGIN_START),
@@ -36,22 +38,42 @@ export class AuthEffects {
         map(resData => {
           const expirationData = new Date(new Date().getTime() + +resData.expiresIn * 1000);
 
-          return of(
-            new AuthActions.Login({
+          return new AuthActions.Login({
               email: resData.email,
               userId: resData.localId,
               token: resData.idToken,
               expirationDate: expirationData
-            })
-
-          );
+            });
         }),
-        catchError(error => {
-          return of(error)
+        catchError(errorRes => {
+          let errorMessage = 'An unknown error occurred!';
+          if (!errorRes.error || !errorRes.error.error) {
+            return of(new AuthActions.LoginFail(errorRes));
+          }
+          switch (errorRes.error.error.message) {
+            case 'EMAIL_EXISTS':
+              errorMessage = 'This email exists already';
+              break;
+            case 'EMAIL_NOT_FOUND':
+              errorMessage = 'This email does not exist.';
+              break;
+            case 'INVALID_PASSWORD':
+              errorMessage = 'This password is not correct.';
+              break;
+          }
+          return of(new AuthActions.LoginFail(errorRes));
         })
       );
     })
-  )
+  );
 
-  constructor(private actions$: Actions, private http: HttpClient) {}
+  @Effect({ dispatch: false })
+  authSuccess = this.actions$.pipe(
+    ofType(AuthActions.LOGIN),
+    tap(() => {
+      this.router.navigate(['/']);
+    })
+  );
+
+  constructor(private actions$: Actions, private http: HttpClient, private router: Router) {}
 }
