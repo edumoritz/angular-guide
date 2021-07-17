@@ -50,7 +50,9 @@ export class AuthEffects {
           if (!errorRes.error || !errorRes.error.error) {
             return of(new AuthActions.LoginFail(errorRes));
           }
-          switch (errorRes.error.error.message) {
+          const { message } = errorRes.error.error;
+
+          switch (message) {
             case 'EMAIL_EXISTS':
               errorMessage = 'This email exists already';
               break;
@@ -60,8 +62,13 @@ export class AuthEffects {
             case 'INVALID_PASSWORD':
               errorMessage = 'This password is not correct.';
               break;
+
           }
-          return of(new AuthActions.LoginFail(errorRes));
+
+          if (message.includes('TOO_MANY_ATTEMPTS_TRY_LATER')) {
+            errorMessage = 'Access to this account has been temporarily disabled due to many failed login attempts.';
+          }
+          return of(new AuthActions.LoginFail(errorMessage));
         })
       );
     })

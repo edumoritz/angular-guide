@@ -27,7 +27,7 @@ export class AuthComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private router: Router,
     private componentFactoryResolver: ComponentFactoryResolver,
-    private store: Store<fromApp.AppState>
+    private store: Store<fromApp.AppState>,
   ) { }
 
   ngOnInit() {
@@ -48,12 +48,12 @@ export class AuthComponent implements OnInit, OnDestroy {
     if (!form.valid) {
       return;
     }
-    const email = form.value.email;
-    const password = form.value.password;
+
+    const { email, password } = form.value;
 
     let authObs: Observable<AuthResponseData>;
 
-    this.isLoading = true;
+    // this.isLoading = true;
     if (this.isLoginMode) {
       // authObs = this.authService.login(email, password)
       this.store.dispatch(
@@ -92,11 +92,15 @@ export class AuthComponent implements OnInit, OnDestroy {
   private showErrorAlert(message: string) {
     // const alertCmp = new AlertComponent();
     const alertCmpFactory = this.componentFactoryResolver.resolveComponentFactory(AlertComponent);
+
     const hostViewContainerRef = this.alertHost.viewContainerRef;
+
     hostViewContainerRef.clear();
 
     const componentRef = hostViewContainerRef.createComponent(alertCmpFactory);
+
     componentRef.instance.message = message;
+
     this.closeSub = componentRef.instance.close.subscribe(() => {
       this.closeSub.unsubscribe();
       hostViewContainerRef.clear();
